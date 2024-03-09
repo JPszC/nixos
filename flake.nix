@@ -19,19 +19,15 @@
     };
   };
 
-  outputs = {nixpkgs, ...} @ inputs:
-  {
-    nixosConfigurations.default = nixpkgs.lib.nixosSystem {
-      specialArgs = {inherit inputs;};
-      modules = [
-        inputs.disko.nixosModules.default
-        ./disko.nix
-
-        ./configuration.nix
-              
-        inputs.home-manager.nixosModules.default
-        inputs.impermanence.nixosModules.impermanence
-      ];
+  outputs = {nixpkgs, self, ...} @ inputs:
+    let
+      selfPkgs = import ./pkgs;
+      username = "jpszc";
+    in
+    {
+      overlays.default = selfPkgs.overlay;
+      nixosConfigurations = import ./modules/core/default.nix {
+        inherit self nixpkgs inputs username;
+      };
     };
-  };
 }
